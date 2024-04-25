@@ -9,6 +9,8 @@
 
 #define MAX_COMMAND_LENGTH 100
 
+void execute(char *command);
+void dprompt(void);
 void int_mode(void);
 void non_int_mode(FILE *stream);
 
