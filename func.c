@@ -18,8 +18,9 @@ void execute(char *command)
  */
 void int_mode(void)
 {
-	int status;
 	char command[MAX_COMMAND_LENGTH];
+	pid_t pid;
+	int status;
 
 	while (1)
 	{
@@ -39,7 +40,7 @@ void int_mode(void)
 			break;
 		}
 
-		pid_t pid = fork();
+		pid = fork();
 
 		if (pid == -1)
 		{
@@ -47,6 +48,10 @@ void int_mode(void)
 			exit(EXIT_FAILURE);
 		}
 		else if (pid == 0)
+		{
+			execute(command);
+		}
+		else
 		{
 			waitpid(pid, &status, 0);
 		}
@@ -60,12 +65,13 @@ void non_int_mode(FILE *stream)
 {
 	char input[MAX_COMMAND_LENGTH];
 	int status;
+	pid_t pid;
 
 	while (fgets(command, sizeof(command), stream) != NULL)
 	{
-		command[strcspn(input, "\n")] = '\0';
+		command[strcspn(command, "\n")] = '\0';
 
-		pid_t pid = fork();
+		pid = fork();
 
 		if (pid == -1)
 		{
