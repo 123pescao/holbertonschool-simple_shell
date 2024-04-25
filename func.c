@@ -46,17 +46,26 @@ void dprompt(void)
 void int_mode(void)
 {
 	char command[MAX_COMMAND_LENGTH];
+	int i = 0, c;
 
 	while (1)
 	{
 		dprompt();
 
-		if (fgets(command, sizeof(command), stdin) == NULL)
+		while ((c = getchar()) != EOF && c != '\n')
+		{
+			if (i < MAX_COMMAND_LENGTH - 1)
+			{
+				command[i++] = c;
+			}
+		}
+		command[i] = '\0';
+
+		if (c == EOF)
 		{
 			printf("\n");
 			break;
 		}
-		command[strcspn(command, "\n")] = '\0';
 
 		if (strcmp(command, "exit") == 0)
 		{
@@ -73,10 +82,17 @@ void int_mode(void)
 void non_int_mode(FILE *stream)
 {
 	char command[MAX_COMMAND_LENGTH];
+	int c, i = 0;
 
-	while (fgets(command, sizeof(command), stream) != NULL)
+	while ((c = fgets(stream)) != EOF)
 	{
-		command[strcspn(command, "\n")] = '\0';
+		while (c != EOF && c != '\n' && i < MAX_COMMAND_LENGTH - 1)
+		{
+			command[i++] = c;
+			c = fgetc(stream);
+		}
+		command[i] = '\0';
+
 		execute(command);
 	}
 }
