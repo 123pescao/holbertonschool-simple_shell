@@ -35,6 +35,14 @@ void execute(char *command)
 		}
 }
 /**
+ * dprompt- command prompt
+ */
+void dprompt(void)
+{
+	printf("($) ");
+	fflush(stdout);
+}
+/**
  * int_mode- run shell in interactive
  */
 void int_mode(void)
@@ -140,20 +148,4 @@ void non_int_mode(FILE *stream)
 			waitpid(pid, &status, 0);
 		}
 	}
-}
-/**
- *main- entry point
- *Return: 0
- */
-int main(void)
-{
-	if (isatty(STDIN_FILENO))
-	{
-		int_mode();
-	}
-	else
-	{
-		non_int_mode(stdin);
-	}
-	return (0);
 }
