@@ -13,7 +13,8 @@ void execute(char *command)
 	args[2] = command;
 	args[3] = NULL;
 	
-	pid_t pid = fork();
+	pid_t = pid;
+	pid = fork();
 	
 	if (pid == -1)
 	{
