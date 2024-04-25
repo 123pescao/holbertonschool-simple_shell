@@ -5,7 +5,10 @@
  */
 void execute(char *command)
 {
-	char *args[] = {command, NULL};
+	char *args[2];
+
+	args[0] = command;
+	args[1] = NULL;
 
 		if (execve(args[0], args, NULL) == -1)
 		{
@@ -63,7 +66,7 @@ void int_mode(void)
  */
 void non_int_mode(FILE *stream)
 {
-	char input[MAX_COMMAND_LENGTH];
+	char command[MAX_COMMAND_LENGTH];
 	int status;
 	pid_t pid;
 
