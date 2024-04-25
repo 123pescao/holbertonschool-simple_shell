@@ -21,23 +21,27 @@ void execute(char *command)
  */
 void int_mode(void)
 {
-	char command[MAX_COMMAND_LENGTH];
+	char command[MAX_COMMAND_LENGTH], c;
 	pid_t pid;
-	int status;
+	int status, i = 0;
 
 	while (1)
 	{
 		printf("($) ");
 		fflush(stdout);
 
-		if (fgets(command, sizeof(command), stdin) == NULL)
+		while (i < MAX_COMMAND_LENGTH - 1 && (c = getchar()) != EOF && c != '\n')
+		{
+			command[i++] = c;
+		}
+
+		command[i] = '\0';
+
+		if (c == EOF)
 		{
 			printf("\n");
 			break;
 		}
-
-		command[strcspn(command, "\n")] = '\0';
-
 		if (strcmp(command, "exit") == 0)
 		{
 			break;
@@ -66,13 +70,41 @@ void int_mode(void)
  */
 void non_int_mode(FILE *stream)
 {
-	char command[MAX_COMMAND_LENGTH];
-	int status;
+	char command[MAX_COMMAND_LENGTH], c;
+	int status, i = 0;
 	pid_t pid;
 
-	while (fgets(command, sizeof(command), stream) != NULL)
+	while ((c = fgetc(stream)) != EOF)
 	{
-		command[strcspn(command, "\n")] = '\0';
+		if (c == '\n' || i >= MAX_COMMAND_LENGTH - 1)
+		{
+			command[i] = '\0';
+
+			pid = fork();
+
+			if (pid == -1)
+			{
+				perror("fork");
+				exit(EXIT_FAILURE);
+			}
+			else if (pid == 0)
+			{
+				execute(command);
+			}
+			else
+			{
+				waitpid(pid, &status, 0);
+			}
+		}
+		else
+		{
+			command[i++] = c;
+		}
+	}
+
+	if (i > 0)
+	{
+		command[i] = '\0';
 
 		pid = fork();
 
@@ -81,7 +113,7 @@ void non_int_mode(FILE *stream)
 			perror("fork");
 			exit(EXIT_FAILURE);
 		}
-		else if (pid == 0)
+		if (pid == 0)
 		{
 			execute(command);
 		}
@@ -97,7 +129,7 @@ void non_int_mode(FILE *stream)
  */
 int main(void)
 {
-	if (isatty(fileno(stdin)))
+	if (isatty(STDIN_FILENO))
 	{
 		int_mode();
 	}
