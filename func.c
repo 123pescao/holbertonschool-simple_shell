@@ -7,13 +7,13 @@ void execute(char *command)
 {
 	int status;
 	char *args[4];
+	pid_t pid;
 
 	args[0] = "/bin/bash";
 	args[1] = "-c";
 	args[2] = command;
 	args[3] = NULL;
 	
-	pid_t pid;
 	pid = fork();
 	
 	if (pid == -1)
