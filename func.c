@@ -72,9 +72,7 @@ void int_mode(void)
  */
 void non_int_mode(FILE *stream)
 {
-	char command[MAX_COMMAND_LENGTH], c;
-	int status, i = 0;
-	pid_t pid;
+	char command[MAX_COMMAND_LENGTH];
 
 	while (fgets(command, sizeof(command), stream) != NULL)
 	{
