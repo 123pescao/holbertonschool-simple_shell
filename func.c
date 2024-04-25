@@ -13,9 +13,7 @@ void execute(char *command)
 	args[1] = "-c";
 	args[2] = command;
 	args[3] = NULL;
-	
 	pid = fork();
-	
 	if (pid == -1)
 	{
 		perror("fork");
@@ -47,47 +45,25 @@ void dprompt(void)
  */
 void int_mode(void)
 {
-	char command[MAX_COMMAND_LENGTH], c;
-	pid_t pid;
-	int status, i = 0;
+	char command[MAX_COMMAND_LENGTH];
 
 	while (1)
 	{
-		printf("($) ");
-		fflush(stdout);
+		dprompt();
 
-		while (i < MAX_COMMAND_LENGTH - 1 && (c = getchar()) != EOF && c != '\n')
-		{
-			command[i++] = c;
-		}
-
-		command[i] = '\0';
-
-		if (c == EOF)
+		if (fgets(command, sizeof(command), stdin) == NULL)
 		{
 			printf("\n");
 			break;
 		}
+		command[strcspn(command, "\n")] = '\0';
+
 		if (strcmp(command, "exit") == 0)
 		{
 			break;
 		}
 
-		pid = fork();
-
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0)
-		{
-			execute(command);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
+		execute(command);
 	}
 }
 /**
@@ -100,52 +76,9 @@ void non_int_mode(FILE *stream)
 	int status, i = 0;
 	pid_t pid;
 
-	while ((c = fgetc(stream)) != EOF)
+	while (fgets(command, sizeof(command), stream) != NULL)
 	{
-		if (c == '\n' || i >= MAX_COMMAND_LENGTH - 1)
-		{
-			command[i] = '\0';
-
-			pid = fork();
-
-			if (pid == -1)
-			{
-				perror("fork");
-				exit(EXIT_FAILURE);
-			}
-			else if (pid == 0)
-			{
-				execute(command);
-			}
-			else
-			{
-				waitpid(pid, &status, 0);
-			}
-		}
-		else
-		{
-			command[i++] = c;
-		}
-	}
-
-	if (i > 0)
-	{
-		command[i] = '\0';
-
-		pid = fork();
-
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		if (pid == 0)
-		{
-			execute(command);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
+		command[strcspn(command, "\n")] = '\0';
+		execute(command);
 	}
 }

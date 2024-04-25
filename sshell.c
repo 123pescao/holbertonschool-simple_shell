@@ -5,21 +5,13 @@
  */
 int main(void)
 {
-	char command[MAX_COMMAND_LENGTH];
-
-	while (1)
+	if (isatty(STDIN_FILENO))
 	{
-		dprompt();
-
-		if (fgets(command, sizeof(command), stdin) == NULL)
-		{
-			printf("\n");
-			break;
-		}
-
-		command[strcspn(command, "\n")] = '\0';
-
-		execute(command);
+		int_mode();
+	}
+	else
+	{
+		non_int_mode(stdin);
 	}
 	return (0);
 }
