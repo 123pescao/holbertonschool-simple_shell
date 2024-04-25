@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define MAX_INPUT_SIZE 1024
+#define MAX_COMMAND_LENGTH 100
 
 void int_mode(void);
 void non_int_mode(FILE *stream);

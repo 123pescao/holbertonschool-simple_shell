@@ -58,10 +58,10 @@ void int_mode(void)
  */
 void non_int_mode(FILE *stream)
 {
-	char input[MAX_INPUT_SIZE];
+	char input[MAX_COMMAND_LENGTH];
 	int status;
 
-	while (fgets(command, sizeof(command), input_stream) != NULL)
+	while (fgets(command, sizeof(command), stream) != NULL)
 	{
 		command[strcspn(input, "\n")] = '\0';
 
