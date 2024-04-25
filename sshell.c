@@ -1,4 +1,5 @@
 #include "head.h"
+#include "func.c"
 /**
  * main- Entry Point
  * Return: 0
@@ -9,7 +10,7 @@ int main(void)
 
 	while (1)
 	{
-		dprompt();
+		dprompt(void);
 
 		if (fgets(command, sizeof(command), stdin) == NULL)
 		{
