@@ -7,7 +7,7 @@ void execute(char *command)
 {
 	char *args[] = {command, NULL};
 
-		if (execve(args[0], args. NULL) == -1)
+		if (execve(args[0], args, NULL) == -1)
 		{
 			perror("execve");
 			exit(EXIT_FAILURE);
@@ -26,7 +26,7 @@ void int_mode(void)
 		printf("($) ");
 		fflush(stdout);
 
-		if (fgets(coomand, sizeof(command), stdin) == NULL)
+		if (fgets(command, sizeof(command), stdin) == NULL)
 		{
 			printf("\n");
 			break;
