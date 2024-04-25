@@ -5,7 +5,7 @@
  */
 void execute(char *command)
 {
-	char *args[] = {"/bin/bash", "-c", command. NULL};
+	char *args[] = {"/bin/bash", "-c", command, NULL};
 	int status;
 	pid_t pid = fork();
 	
