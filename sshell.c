@@ -1,5 +1,4 @@
 #include "head.h"
-#include "func.c"
 /**
  * main- Entry Point
  * Return: 0
