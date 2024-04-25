@@ -10,7 +10,7 @@ int main(void)
 
 	while (1)
 	{
-		dprompt(void);
+		dprompt();
 
 		if (fgets(command, sizeof(command), stdin) == NULL)
 		{
