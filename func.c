@@ -5,15 +5,26 @@
  */
 void execute(char *command)
 {
-	char *args[2];
-
-	args[0] = command;
-	args[1] = NULL;
-
+	char *args[] = {"/bin/bash", "-c", command. NULL};
+	int status;
+	pid_t pid = fork();
+	
+	if (pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	else if (pid == 0)
+	{
 		if (execve(args[0], args, NULL) == -1)
 		{
 			perror("execve");
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
+		}
+	}
+		else
+		{
+			waitpid(pid, &status, 0);
 		}
 }
 /**
