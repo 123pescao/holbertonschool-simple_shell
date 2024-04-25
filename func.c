@@ -87,18 +87,18 @@ void non_int_mode(FILE *stream)
 	while ((c = fgetc(stream)) != EOF)
 	{
 		if (c == '\n' || i >= MAX_COMMAND_LENGTH - 1)
-        	{
-            		command[i] = '\0';
-            		execute(command);
-        	}
-        	else
-        	{
-            		command[i++] = c;
-        	}
-    	}
-    	if (i > 0)
-    	{
-        	command[i] = '\0';
-        	execute(command);
+		{
+			command[i] = '\0';
+			execute(command);
+		}
+		else
+		{
+			command[i++] = c;
+		}
+	}
+	if (i > 0)
+	{
+		command[i] = '\0';
+		execute(command);
 	}
 }
