@@ -6,14 +6,8 @@
 void execute(char *command)
 {
 	int status;
-	char *args[4];
-	pid_t pid;
+	pid_t pid = fork();
 
-	args[0] = "/bin/bash";
-	args[1] = "-c";
-	args[2] = command;
-	args[3] = NULL;
-	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
@@ -21,7 +15,7 @@ void execute(char *command)
 	}
 	else if (pid == 0)
 	{
-		if (execve(args[0], args, NULL) == -1)
+		if (execve(args[0], args, environ) == -1)
 		{
 			perror("execve");
 			_exit(EXIT_FAILURE);
@@ -31,6 +25,22 @@ void execute(char *command)
 		{
 			waitpid(pid, &status, 0);
 		}
+}
+/**
+ *parse_command: Parses the command input into an array of args
+ *@command: input command string to arg
+ *@args: the array to store the arguments
+ */
+void parse_command(char *command, char *args[])
+{
+	int i = 0;
+
+	args[i] = strtok(command, " \n");
+	while (args[i] != NULL && i < MAX_ARGS - 1)
+	{
+		args[++i] = strtok(NULL, " \n");
+	}
+	args[i] = NULL;
 }
 /**
  * dprompt- command prompt
@@ -46,33 +56,23 @@ void dprompt(void)
 void int_mode(void)
 {
 	char command[MAX_COMMAND_LENGTH];
-	int i = 0, c;
+	char *args[MAX_ARGS];
 
 	while (1)
 	{
 		dprompt();
 
-		while ((c = getchar()) != EOF && c != '\n')
-		{
-			if (i < MAX_COMMAND_LENGTH - 1)
-			{
-				command[i++] = c;
-			}
-		}
-		command[i] = '\0';
-
-		if (c == EOF)
+		if (fgets(command, MAX_COMMAND_LENTGH, stdin) == NULL)
 		{
 			printf("\n");
 			break;
 		}
 
 		if (strcmp(command, "exit") == 0)
-		{
 			break;
-		}
 
-		execute(command);
+		parse_command(command, args);
+		execute(args);
 	}
 }
 /**
@@ -82,23 +82,11 @@ void int_mode(void)
 void non_int_mode(FILE *stream)
 {
 	char command[MAX_COMMAND_LENGTH];
-	int c, i = 0;
+	char *args[MAX_ARGS];
 
-	while ((c = fgetc(stream)) != EOF)
+	while (fgets(command, MAX_COMMAND_LENTGH, stream) != NULL)
 	{
-		if (c == '\n' || i >= MAX_COMMAND_LENGTH - 1)
-		{
-			command[i] = '\0';
-			execute(command);
-		}
-		else
-		{
-			command[i++] = c;
-		}
-	}
-	if (i > 0)
-	{
-		command[i] = '\0';
-		execute(command);
+		parse_command(command, args);
+		execute(args);
 	}
 }
