@@ -1,95 +1,43 @@
 #include "head.h"
-#include <errno.h>
 /**
- * execute- execute a command
- * @command: command
- */
-void execute(char *args[])
-{
-	int status;
-	pid_t pid;
-
-	pid = fork();
-
-	if (pid == 0)
-	{
-		if (execve(args[0], args, environ) == -1)
-		{
-			fprintf(stderr, "Error executing command: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-	}
-	else if (pid > 0)
-	{
-		do
-		{
-			waitpid(pid, &status, WUNTRACED);
-		}
-		while (!WIFEXITED(status) && !WIFSIGNALED(status));
-	}
-	else
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-}
-/**
- *parse_command: Parses the command input into an array of args
- *@command: input command string to arg
- *@args: the array to store the arguments
- */
-void parse_command(char *command, char *args[])
-{
-	int i = 0;
-
-	args[i] = strtok(command, " \t\n");
-	while (args[i] != NULL && i < MAX_ARGS - 1)
-	{
-		args[++i] = strtok(NULL, " \t\n");
-	}
-	args[i] = NULL;
-}
-/**
- * dprompt- command prompt
- */
-void dprompt(void)
-{
-	printf("$ ");
-	fflush(stdout);
-}
-/**
- * int_mode- run shell in interactive
+ * int_mode - Handles the interactive mode of the shell.
+ *
+ * Description: Continuously reads commands from the standard input,
+ *              processes and executes them until "exit" is entered
+ *              or an EOF is encountered.
  */
 void int_mode(void)
 {
-	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS];
+	char buffer[BUFFER_SIZE];
 
 	while (1)
 	{
-		dprompt();
-		if (!fgets(command, MAX_COMMAND_LENGTH, stdin))
+		printf("$ ");
+		fflush(stdout);
+		read_input(STDIN_FILENO, buffer);
+		if (strcmp(buffer, "exit\n") == 0)
 			break;
-
-		if (strcmp(command, "exit\n") == 0)
-			break;
-
-		parse_command(command, args);
-		execute(args);
+		process_input(buffer);
 	}
 }
 /**
- * non_int_mode- run shell in non_interactive
- * @stream: input stream
+ * non_int_mode - Handles the non-interactive mode of the shell.
+ * @stream: FILE stream from which to read the commands.
+ *
+ * Description: Reads commands from a given file stream, processes,
+ *              and executes them until EOF.
  */
 void non_int_mode(FILE *stream)
 {
-	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS];
+	char buffer[BUFFER_SIZE];
+	int fd = fileno(stream);
 
-	while (fgets(command, MAX_COMMAND_LENGTH, stream) != NULL)
+	while (1)
 	{
-		parse_command(command, args);
-		execute(args);
+		read_input(fd, buffer);
+		if (feof(stream) || ferror(stream))
+			break;
+		process_input(buffer);
 	}
 }
+
