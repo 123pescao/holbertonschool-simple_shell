@@ -14,9 +14,9 @@ void int_mode(void)
 	{
 		printf("$ ");
 		fflush(stdout);
-		read_input(STDIN_FILENO, buffer);
-		if (strcmp(buffer, "exit\n") == 0)
+		if (!read_command(buffer))
 			break;
+
 		process_input(buffer);
 	}
 }
@@ -30,13 +30,16 @@ void int_mode(void)
 void non_int_mode(FILE *stream)
 {
 	char buffer[BUFFER_SIZE];
-	int fd = fileno(stream);
+	int readStatus;
+
+	(void)stream;
 
 	while (1)
 	{
-		read_input(fd, buffer);
-		if (feof(stream) || ferror(stream))
+		readStatus = read_command(buffer);
+		if (!readStatus)
 			break;
+
 		process_input(buffer);
 	}
 }
