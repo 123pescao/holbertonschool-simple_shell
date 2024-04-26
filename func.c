@@ -3,7 +3,7 @@
  * execute- execute a command
  * @command: command
  */
-void execute(char *command)
+void execute(char *args[])
 {
 	int status;
 	pid_t pid = fork();
@@ -56,24 +56,20 @@ void dprompt(void)
 void int_mode(void)
 {
 	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS];
+	char *args[MAX_ARGS] = {0};
+	
+	dprompt();
 
-	while (1)
-	{
-		dprompt();
-
-		if (fgets(command, MAX_COMMAND_LENTGH, stdin) == NULL)
+	while (fgets(command, MAX_COMMAND_LENGTH, stdin) != NULL)
 		{
-			printf("\n");
-			break;
-		}
-
-		if (strcmp(command, "exit") == 0)
+			if (strcmp(command, "exit") == 0)
 			break;
 
 		parse_command(command, args);
 		execute(args);
+		dprompt();
 	}
+	printf("\n");
 }
 /**
  * non_int_mode- run shell in non_interactive
@@ -82,9 +78,9 @@ void int_mode(void)
 void non_int_mode(FILE *stream)
 {
 	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS];
+	char *args[MAX_ARGS] = {0};
 
-	while (fgets(command, MAX_COMMAND_LENTGH, stream) != NULL)
+	while (fgets(command, MAX_COMMAND_LENGTH, stream) != NULL)
 	{
 		parse_command(command, args);
 		execute(args);
