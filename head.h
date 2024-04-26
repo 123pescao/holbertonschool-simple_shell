@@ -13,5 +13,6 @@ void execute(char *command);
 void dprompt(void);
 void int_mode(void);
 void non_int_mode(FILE *stream);
+void parse_command(char *command, char *args[]);
 
 #endif
