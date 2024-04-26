@@ -1,104 +1,43 @@
 #include "head.h"
 /**
- * execute- execute a command
- * @command: command
- */
-void execute(char *command)
-{
-	int status;
-	char *args[4];
-	pid_t pid;
-
-	args[0] = "/bin/bash";
-	args[1] = "-c";
-	args[2] = command;
-	args[3] = NULL;
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		if (execve(args[0], args, NULL) == -1)
-		{
-			perror("execve");
-			_exit(EXIT_FAILURE);
-		}
-	}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
-}
-/**
- * dprompt- command prompt
- */
-void dprompt(void)
-{
-	printf("($) ");
-	fflush(stdout);
-}
-/**
- * int_mode- run shell in interactive
+ * int_mode - Handles the interactive mode of the shell.
+ *
+ * Description: Continuously reads commands from the standard input,
+ *              processes and executes them until "exit" is entered
+ *              or an EOF is encountered.
  */
 void int_mode(void)
 {
-	char command[MAX_COMMAND_LENGTH];
-	int i = 0, c;
+	char buffer[BUFFER_SIZE];
 
 	while (1)
 	{
-		dprompt();
-
-		while ((c = getchar()) != EOF && c != '\n')
-		{
-			if (i < MAX_COMMAND_LENGTH - 1)
-			{
-				command[i++] = c;
-			}
-		}
-		command[i] = '\0';
-
-		if (c == EOF)
-		{
-			printf("\n");
+		printf("$ ");
+		fflush(stdout);
+		read_input(STDIN_FILENO, buffer);
+		if (strcmp(buffer, "exit\n") == 0)
 			break;
-		}
-
-		if (strcmp(command, "exit") == 0)
-		{
-			break;
-		}
-
-		execute(command);
+		process_input(buffer);
 	}
 }
 /**
- * non_int_mode- run shell in non_interactive
- * @stream: input stream
+ * non_int_mode - Handles the non-interactive mode of the shell.
+ * @stream: FILE stream from which to read the commands.
+ *
+ * Description: Reads commands from a given file stream, processes,
+ *              and executes them until EOF.
  */
 void non_int_mode(FILE *stream)
 {
-	char command[MAX_COMMAND_LENGTH];
-	int c, i = 0;
+	char buffer[BUFFER_SIZE];
+	int fd = fileno(stream);
 
-	while ((c = fgetc(stream)) != EOF)
+	while (1)
 	{
-		if (c == '\n' || i >= MAX_COMMAND_LENGTH - 1)
-		{
-			command[i] = '\0';
-			execute(command);
-		}
-		else
-		{
-			command[i++] = c;
-		}
-	}
-	if (i > 0)
-	{
-		command[i] = '\0';
-		execute(command);
+		read_input(fd, buffer);
+		if (feof(stream) || ferror(stream))
+			break;
+		process_input(buffer);
 	}
 }
+
