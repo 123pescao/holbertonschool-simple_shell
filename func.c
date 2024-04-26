@@ -1,4 +1,5 @@
 #include "head.h"
+#include <errno.h>
 /**
  * execute- execute a command
  * @command: command
@@ -6,25 +7,31 @@
 void execute(char *args[])
 {
 	int status;
-	pid_t pid = fork();
+	pid_t pid;
 
-	if (pid == -1)
+	pid = fork();
+
+	if (pid == 0)
+	{
+		if (execve(args[0], args, environ) == -1)
+		{
+			fprintf(stderr, "Error executing command: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+	}
+	else if (pid > 0)
+	{
+		do
+		{
+			waitpid(pid, &status, WUNTRACED);
+		}
+		while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	}
+	else
 	{
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
-	else if (pid == 0)
-	{
-		if (execve(args[0], args, environ) == -1)
-		{
-			perror("execve");
-			_exit(EXIT_FAILURE);
-		}
-	}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
 }
 /**
  *parse_command: Parses the command input into an array of args
@@ -35,10 +42,10 @@ void parse_command(char *command, char *args[])
 {
 	int i = 0;
 
-	args[i] = strtok(command, " \n");
+	args[i] = strtok(command, " \t\n");
 	while (args[i] != NULL && i < MAX_ARGS - 1)
 	{
-		args[++i] = strtok(NULL, " \n");
+		args[++i] = strtok(NULL, " \t\n");
 	}
 	args[i] = NULL;
 }
@@ -47,7 +54,7 @@ void parse_command(char *command, char *args[])
  */
 void dprompt(void)
 {
-	printf("($) ");
+	printf("$ ");
 	fflush(stdout);
 }
 /**
@@ -56,20 +63,20 @@ void dprompt(void)
 void int_mode(void)
 {
 	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS] = {0};
-	
-	dprompt();
+	char *args[MAX_ARGS];
 
-	while (fgets(command, MAX_COMMAND_LENGTH, stdin) != NULL)
-		{
-			if (strcmp(command, "exit") == 0)
+	while (1)
+	{
+		dprompt();
+		if (!fgets(command, MAX_COMMAND_LENGTH, stdin))
+			break;
+
+		if (strcmp(command, "exit\n") == 0)
 			break;
 
 		parse_command(command, args);
 		execute(args);
-		dprompt();
 	}
-	printf("\n");
 }
 /**
  * non_int_mode- run shell in non_interactive
@@ -78,7 +85,7 @@ void int_mode(void)
 void non_int_mode(FILE *stream)
 {
 	char command[MAX_COMMAND_LENGTH];
-	char *args[MAX_ARGS] = {0};
+	char *args[MAX_ARGS];
 
 	while (fgets(command, MAX_COMMAND_LENGTH, stream) != NULL)
 	{
