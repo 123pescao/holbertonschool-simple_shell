@@ -1,10 +1,18 @@
 #include "head.h"
 /**
- * main- Entry Point
- * Return: 0
+ * main - Entry point of the shell.
+ * @argc: Argument count.
+ * @argv: Argument vector.
+ *
+ * Return: Always returns 0.
+ * Description: Starts the shell in either interactive or non-interactive
+ *              mode based on whether the input is from a terminal.
  */
-int main(void)
+int main(int argc, char **argv)
 {
+	(void)argc;
+	(void)argv;
+
 	if (isatty(STDIN_FILENO))
 	{
 		int_mode();
