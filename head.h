@@ -8,8 +8,11 @@
 #include <string.h>
 
 #define MAX_COMMAND_LENGTH 100
+#define MAX_ARGS
 
-void execute(char *command);
+extern char **environ;
+
+void execute(char *args[]);
 void dprompt(void);
 void int_mode(void);
 void non_int_mode(FILE *stream);
